@@ -1,15 +1,18 @@
 package com.example.customgridview
 
 import android.content.Context
-import android.graphics.*
-import android.graphics.drawable.Drawable
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Rect
 import android.os.Build
-import android.text.TextPaint
 import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import androidx.annotation.RequiresApi
+
+
 
 /**
  * Algorithm
@@ -33,17 +36,14 @@ class SquareGridCustomView @JvmOverloads constructor(
     private var totalColumns: Int = 2 // default
     private var totalRows: Int = 2 // default
     private var space: Int = 10 //default
-
-    private var squareShape1: Rect? = null
-    private var squareShape2: Rect? = null
-    private var squareShape3: Rect? = null
     private var squareWidth = 0
     private var squareHeight = 0
 
+    private var canvasWidth = 0
+    private var canvasHeight = 0
 
     private var horizontalGridWidth = 0
     private var verticalGridHeight = 0
-    private var extraPadding = dptoDisplayPixels(10)
 
     private var paint = Paint()?.also {
         it.isAntiAlias = true // Smoothing Surface
@@ -73,9 +73,10 @@ class SquareGridCustomView @JvmOverloads constructor(
 
         var shape = Rect()
         for (row in 0 until totalRows) {
-            var localTopPadding = totalTopPadding
-            if(row != 0) {
-                localTopPadding = shape.bottom + space
+
+            var localTopPadding = when (row){
+                0 -> totalTopPadding
+                else -> shape.bottom + space
             }
             for (column in 0 until totalColumns) {
                 when (column) {
@@ -151,7 +152,6 @@ class SquareGridCustomView @JvmOverloads constructor(
 
         totalRows = totalColumns
 
-//        this.setMeasuredDimension(squareWidth, squareHeight)
         this.setMeasuredDimension(squareWidth, squareHeight)
     }
 
@@ -192,9 +192,14 @@ class SquareGridCustomView @JvmOverloads constructor(
         // Total Grid Space = Total Canvas Width - (Trailing spaces*2) - ((total columns -1)*internal space)
         // Total Grid Space = 400 - 50*2 - (2-1)*50 = 250
         // Each Grid Space = 250/2 = 125
-        return (canvas.width - (space * 2) - ((totalColumns - 1) * space)) / totalColumns
+        return (canvasWidth - (space * 2) - ((totalColumns - 1) * space)) / totalColumns
     }
 
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        canvasWidth = w
+        canvasHeight = h
+        super.onSizeChanged(w, h, oldw, oldh)
+    }
     private fun dptoDisplayPixels(value: Int): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,

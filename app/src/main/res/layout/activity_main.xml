@@ -28,16 +28,14 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <com.example.customgridview.SquareGridCustomView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="400dp"
+        android:layout_height="400dp"
         android:background="#ccc"
         app:col_space="50"
-        app:grids="2"
+        app:grids="4"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appbarlayout"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@+id/appbarlayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
