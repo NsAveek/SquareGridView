@@ -29,7 +29,6 @@ class SquareGridCustomView @JvmOverloads constructor(
     private var totalRightPadding = 0
     private var totalTopPadding = 0
     private var totalBottomPadding = 0
-    private var innerSpace = 0
 
     private var totalColumns: Int = 2 // default
     private var totalRows: Int = 2 // default
@@ -74,15 +73,19 @@ class SquareGridCustomView @JvmOverloads constructor(
 
         var shape = Rect()
         for (row in 0 until totalRows) {
+            var localTopPadding = totalTopPadding
+            if(row != 0) {
+                localTopPadding = shape.bottom + space
+            }
             for (column in 0 until totalColumns) {
                 when (column) {
                     0 -> {
                         shape = drawSquare(
                             canvas,
                             totalLeftPadding,
-                            totalTopPadding,
+                            localTopPadding,
                             totalLeftPadding + horizontalGridWidth,
-                            verticalGridHeight - (space / 2)
+                            localTopPadding + verticalGridHeight
                         )
                         Log.d("column 1", shape.width().toString())
                     }
@@ -90,9 +93,9 @@ class SquareGridCustomView @JvmOverloads constructor(
                         shape = drawSquare(
                             canvas,
                             shape.right + (space),
-                            totalTopPadding,
+                            localTopPadding,
                             shape.right + (space) + horizontalGridWidth,
-                            verticalGridHeight - (space / 2)
+                            localTopPadding + verticalGridHeight
                         )
                         Log.d("column 2", shape.width().toString())
                     }
@@ -136,8 +139,8 @@ class SquareGridCustomView @JvmOverloads constructor(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        squareWidth = widthMeasureSpec / 2
-        squareHeight = heightMeasureSpec / 2
+        squareWidth = widthMeasureSpec
+        squareHeight = heightMeasureSpec
 //        squareWidth = widthMeasureSpec
 //        squareHeight = heightMeasureSpec
 
@@ -145,10 +148,10 @@ class SquareGridCustomView @JvmOverloads constructor(
         totalRightPadding = totalLeftPadding
         totalTopPadding = totalLeftPadding
         totalBottomPadding = totalLeftPadding
-        innerSpace = space/(totalColumns-1)
 
         totalRows = totalColumns
 
+//        this.setMeasuredDimension(squareWidth, squareHeight)
         this.setMeasuredDimension(squareWidth, squareHeight)
     }
 
