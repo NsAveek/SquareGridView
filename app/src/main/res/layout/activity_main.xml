@@ -32,10 +32,10 @@
         app:layout_constraintTop_toBottomOf="@+id/appbarlayout"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:grids="3"
+        app:grids="2"
         app:col_space="50"
-        android:layout_width="800dp"
-        android:layout_height="800dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:background="#ccc" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

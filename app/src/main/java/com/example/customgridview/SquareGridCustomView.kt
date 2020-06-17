@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.text.TextPaint
 import android.util.AttributeSet
+import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import androidx.annotation.RequiresApi
@@ -28,8 +29,10 @@ class SquareGridCustomView @JvmOverloads constructor(
     private var totalRightPadding = 0
     private var totalTopPadding = 0
     private var totalBottomPadding = 0
+    private var innerSpace = 0
 
-    private var grids: Int = 2 // default
+    private var totalColumns: Int = 2 // default
+    private var totalRows: Int = 2 // default
     private var space: Int = 10 //default
 
     private var squareShape1: Rect? = null
@@ -51,7 +54,7 @@ class SquareGridCustomView @JvmOverloads constructor(
         val typedArray =
             context.obtainStyledAttributes(attributeSet, R.styleable.SquareGridCustomView)
         try {
-            grids = typedArray.getInt(R.styleable.SquareGridCustomView_grids, 2)
+            totalColumns = typedArray.getInt(R.styleable.SquareGridCustomView_grids, 2)
             space = typedArray.getInt(R.styleable.SquareGridCustomView_col_space, 10)
             paint.color = typedArray.getColor(
                 R.styleable.SquareGridCustomViewColor_color,
@@ -66,51 +69,85 @@ class SquareGridCustomView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        totalLeftPadding = space
-        totalRightPadding = totalLeftPadding
-        totalTopPadding = totalLeftPadding
-        totalBottomPadding = totalLeftPadding
 
         refreshValues(canvas)
 
-        var shape: Rect = Rect()
-
-//        drawSquare(canvas)
-
-        for (i in 0 until grids) {
-            if (i == 0) {
-                shape = drawSquare(
-                    canvas,
-                    totalLeftPadding,
-                    totalTopPadding,
-                    totalLeftPadding + horizontalGridWidth - (space/2),
-                    verticalGridHeight - (space / 2)
-                )
-            } else if (i>1 && i == grids - 1) {
-                shape = drawSquare(
-                    canvas,
-                    shape.right + (space),
-                    totalTopPadding,
-                    shape.right + (space) + horizontalGridWidth - (space/2) ,
-                    verticalGridHeight - (space / 2)
-                )
-            } else {
-                shape = drawSquare(
-                    canvas,
-                    shape.right + (space),
-                    totalTopPadding,
-                    shape.right + (space) + horizontalGridWidth,
-                    verticalGridHeight - (space / 2)
-                )
+        var shape = Rect()
+        for (row in 0 until totalRows) {
+            for (column in 0 until totalColumns) {
+                when (column) {
+                    0 -> {
+                        shape = drawSquare(
+                            canvas,
+                            totalLeftPadding,
+                            totalTopPadding,
+                            totalLeftPadding + horizontalGridWidth,
+                            verticalGridHeight - (space / 2)
+                        )
+                        Log.d("column 1", shape.width().toString())
+                    }
+                    else -> {
+                        shape = drawSquare(
+                            canvas,
+                            shape.right + (space),
+                            totalTopPadding,
+                            shape.right + (space) + horizontalGridWidth,
+                            verticalGridHeight - (space / 2)
+                        )
+                        Log.d("column 2", shape.width().toString())
+                    }
+                }
             }
         }
+
+        /*for (row in 0 until totalRows) {
+            for (column in 0 until totalColumns) {
+                if (column == 0) {
+                    shape = drawSquare(
+                        canvas,
+                        totalLeftPadding,
+                        totalTopPadding,
+                        totalLeftPadding + horizontalGridWidth - (innerSpace),
+                        verticalGridHeight - (space / 2)
+                    )
+                    Log.d("column 1", shape.width().toString())
+                } else if (column == totalColumns - 1) {
+                    shape = drawSquare(
+                        canvas,
+                        shape.right + (space),
+                        totalTopPadding,
+                        shape.right + (space) + horizontalGridWidth,
+                        verticalGridHeight - (space / 2)
+                    )
+                    Log.d("column 3", shape.width().toString())
+                } else {
+                    shape = drawSquare(
+                        canvas,
+                        shape.right + (space),
+                        totalTopPadding,
+                        shape.right + (space) + horizontalGridWidth - (innerSpace),
+                        verticalGridHeight - (space / 2)
+                    )
+                    Log.d("column 2", shape.width().toString())
+                }
+            }
+        }*/
         invalidate()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        squareWidth = widthMeasureSpec/2
-        squareHeight = heightMeasureSpec/2
+        squareWidth = widthMeasureSpec / 2
+        squareHeight = heightMeasureSpec / 2
+//        squareWidth = widthMeasureSpec
+//        squareHeight = heightMeasureSpec
 
+        totalLeftPadding = space
+        totalRightPadding = totalLeftPadding
+        totalTopPadding = totalLeftPadding
+        totalBottomPadding = totalLeftPadding
+        innerSpace = space/(totalColumns-1)
+
+        totalRows = totalColumns
 
         this.setMeasuredDimension(squareWidth, squareHeight)
     }
@@ -122,25 +159,11 @@ class SquareGridCustomView @JvmOverloads constructor(
         right: Int,
         bottom: Int
     ): Rect {
-        val shape = Rect(left,top, right,bottom)
+        val shape = Rect(left, top, right, bottom)
         canvas.drawRect(shape, paint)
-//        shape?.let {
-//            canvas.drawRect(it, paint)
-//        }
-
-
-//        squareShape1 = Rect(totalLeftPadding,totalTopPadding,(horizontalGridWidth - totalRightPadding/2).toInt(), (verticalGridHeight-totalBottomPadding).toInt())
-//        squareShape1?.let { canvas.drawRect(it,paint) }
-//
-//        squareShape2 = Rect(squareShape1!!.right+totalLeftPadding,totalTopPadding,(squareShape1!!.right+totalLeftPadding/2+horizontalGridWidth-totalRightPadding/2).toInt(), (verticalGridHeight-totalBottomPadding).toInt())
-//        squareShape2?.let { canvas.drawRect(it,paint) }
-//
-//        squareShape3 = Rect(squareShape2!!.right+totalLeftPadding,totalTopPadding,(squareShape2!!.right+ totalLeftPadding/2+horizontalGridWidth-totalRightPadding).toInt(), (verticalGridHeight-totalBottomPadding).toInt())
-//        squareShape3?.let { canvas.drawRect(it,paint) }
-
-
         return shape
     }
+
 //    private fun drawSquare(
 //        canvas: Canvas
 //    ){
@@ -166,7 +189,7 @@ class SquareGridCustomView @JvmOverloads constructor(
         // Total Grid Space = Total Canvas Width - (Trailing spaces*2) - ((total columns -1)*internal space)
         // Total Grid Space = 400 - 50*2 - (2-1)*50 = 250
         // Each Grid Space = 250/2 = 125
-        return (canvas.width - (space * 2) - ((grids - 1) * space)) / grids
+        return (canvas.width - (space * 2) - ((totalColumns - 1) * space)) / totalColumns
     }
 
     private fun dptoDisplayPixels(value: Int): Int {
