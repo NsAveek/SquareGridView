@@ -1,0 +1,10 @@
+<resources>
+    <declare-styleable name="SquareGridCustomView">
+        <attr name="grids" format="integer" />
+        <attr name="col_space" format="integer"/>
+    </declare-styleable>
+
+    <declare-styleable name="SquareGridCustomViewColor">
+        <attr name="color" format="color" />
+    </declare-styleable>
+</resources>
