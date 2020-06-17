@@ -66,6 +66,11 @@ class SquareGridCustomView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
+        totalLeftPadding = space
+        totalRightPadding = totalLeftPadding
+        totalTopPadding = totalLeftPadding
+        totalBottomPadding = totalLeftPadding
+
         refreshValues(canvas)
 
         var shape: Rect = Rect()
@@ -103,13 +108,9 @@ class SquareGridCustomView @JvmOverloads constructor(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        squareWidth = widthMeasureSpec
-        squareHeight = heightMeasureSpec
+        squareWidth = widthMeasureSpec/2
+        squareHeight = heightMeasureSpec/2
 
-        totalLeftPadding = space
-        totalRightPadding = totalLeftPadding
-        totalTopPadding = totalLeftPadding
-        totalBottomPadding = totalLeftPadding
 
         this.setMeasuredDimension(squareWidth, squareHeight)
     }
@@ -121,11 +122,23 @@ class SquareGridCustomView @JvmOverloads constructor(
         right: Int,
         bottom: Int
     ): Rect {
-        val shape = Rect(dptoDisplayPixels(left), dptoDisplayPixels(top), dptoDisplayPixels(right), dptoDisplayPixels(bottom))
-//        canvas.drawRect(shape, paint)
-        shape?.let {
-            canvas.drawRect(it, paint)
-        }
+        val shape = Rect(left,top, right,bottom)
+        canvas.drawRect(shape, paint)
+//        shape?.let {
+//            canvas.drawRect(it, paint)
+//        }
+
+
+//        squareShape1 = Rect(totalLeftPadding,totalTopPadding,(horizontalGridWidth - totalRightPadding/2).toInt(), (verticalGridHeight-totalBottomPadding).toInt())
+//        squareShape1?.let { canvas.drawRect(it,paint) }
+//
+//        squareShape2 = Rect(squareShape1!!.right+totalLeftPadding,totalTopPadding,(squareShape1!!.right+totalLeftPadding/2+horizontalGridWidth-totalRightPadding/2).toInt(), (verticalGridHeight-totalBottomPadding).toInt())
+//        squareShape2?.let { canvas.drawRect(it,paint) }
+//
+//        squareShape3 = Rect(squareShape2!!.right+totalLeftPadding,totalTopPadding,(squareShape2!!.right+ totalLeftPadding/2+horizontalGridWidth-totalRightPadding).toInt(), (verticalGridHeight-totalBottomPadding).toInt())
+//        squareShape3?.let { canvas.drawRect(it,paint) }
+
+
         return shape
     }
 //    private fun drawSquare(

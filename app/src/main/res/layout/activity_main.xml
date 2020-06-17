@@ -34,8 +34,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:grids="3"
         app:col_space="50"
-        android:layout_width="400dp"
-        android:layout_height="400dp"
+        android:layout_width="800dp"
+        android:layout_height="800dp"
         android:background="#ccc" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
