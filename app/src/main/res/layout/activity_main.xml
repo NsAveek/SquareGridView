@@ -27,7 +27,8 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <com.example.customgridview.SquareGridCustomView
+    <com.example.customgridview.SquareGridCustomViewConstraintLayout
+        android:id="@+id/squareGridView"
         android:layout_width="400dp"
         android:layout_height="400dp"
         android:background="#ccc"

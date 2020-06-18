@@ -1,5 +1,6 @@
 package com.example.customgridview
 
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
@@ -10,10 +11,17 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var customGridView : SquareGridCustomViewConstraintLayout
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        initCustomView()
+    }
+
+    private fun initCustomView(){
+        customGridView = findViewById(R.id.squareGridView)
+        customGridView.setImageBitmap(BitmapFactory.decodeResource(resources,R.drawable.ic_launcher_background))
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

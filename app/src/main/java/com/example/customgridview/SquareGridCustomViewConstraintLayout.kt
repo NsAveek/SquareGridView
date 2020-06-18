@@ -1,16 +1,17 @@
 package com.example.customgridview
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
-import android.view.View
+import android.widget.Button
+import android.widget.ImageView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.isVisible
 
 
@@ -21,12 +22,16 @@ import androidx.core.view.isVisible
  * Each Grid Space = 250/2 = 125
  */
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-class SquareGridCustomView @JvmOverloads constructor(
+class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
-) : View(context, attributeSet, defStyleAttr, defStyleRes) {
+) : AppCompatImageView(context, attributeSet, defStyleAttr) {
+
+    private lateinit var btnLoadImage : Button
+    private lateinit var imageGridCustomView: ImageView
+
 
     private var totalLeftPadding = 0
     private var totalRightPadding = 0
@@ -50,6 +55,11 @@ class SquareGridCustomView @JvmOverloads constructor(
     }
 
     init {
+//        LayoutInflater.from(context).inflate(R.layout.square_grid_custom_view, this);
+//        btnLoadImage = findViewById(R.id.btnLoadImage)
+//        imageGridCustomView = findViewById(R.id.imageViewGridCustom)
+
+
         val typedArray =
             context.obtainStyledAttributes(attributeSet, R.styleable.SquareGridCustomView)
         try {
@@ -72,6 +82,16 @@ class SquareGridCustomView @JvmOverloads constructor(
 
         refreshValues(canvas)
 
+        var drawable: Drawable? = drawable ?: return
+        if( width == 0 || height == 0) return
+
+        var b : Bitmap = (drawable as BitmapDrawable).bitmap
+        var bitmap = b.copy(Bitmap.Config.ARGB_8888,true)
+        val bitmapWidth = width
+        val bitmapHeight = height
+//        val bitmapFitToSquare = getSquaredCroppedBitmap(bitmap,bitmapWidth,bitmapHeight)
+        val bitmapFitToSquare = getSquaredCroppedBitmap(bitmap,horizontalGridWidth,verticalGridHeight)
+
         var shape = Rect()
         for (row in 0 until totalRows) {
 
@@ -82,14 +102,24 @@ class SquareGridCustomView @JvmOverloads constructor(
             for (column in 0 until totalColumns) {
                 when (column) {
                     0 -> {
-                        shape = drawSquare(
-                            canvas,
-                            totalLeftPadding,
-                            localTopPadding,
-                            totalLeftPadding + horizontalGridWidth,
-                            localTopPadding + verticalGridHeight
-                        )
-                        Log.d("row $row column $column", shape.width().toString())
+                        if (row == 0){
+                            shape = drawSquareWithBitmap(
+                                canvas,
+                                totalLeftPadding,
+                                localTopPadding,
+                                totalLeftPadding + horizontalGridWidth,
+                                localTopPadding + verticalGridHeight, bitmapFitToSquare
+                            )
+                        }else {
+                            shape = drawSquare(
+                                canvas,
+                                totalLeftPadding,
+                                localTopPadding,
+                                totalLeftPadding + horizontalGridWidth,
+                                localTopPadding + verticalGridHeight
+                            )
+                            Log.d("row $row column $column", shape.width().toString())
+                        }
                     }
                     else -> {
                         shape = drawSquare(
@@ -133,6 +163,55 @@ class SquareGridCustomView @JvmOverloads constructor(
         canvas.restore()
 //        invalidate()
         return shape
+    }
+    private fun drawSquareWithBitmap(
+        canvas: Canvas,
+        left: Int,
+        top: Int,
+        right: Int,
+        bottom: Int,
+        bitmap: Bitmap
+    ): Rect {
+        val shape = Rect(left, top, right, bottom)
+        canvas.save()
+        canvas.drawBitmap(bitmap,0F, 0F, null)
+        canvas.restore()
+        return shape
+    }
+
+    private fun getSquaredCroppedBitmap(bitmap: Bitmap, width: Int, height: Int): Bitmap {
+
+        var finalBitmap: Bitmap = if (bitmap.width != width || bitmap.height != height) {
+            Bitmap.createScaledBitmap(bitmap, width, height, false)
+        } else {
+            bitmap
+        }
+        val output = Bitmap.createBitmap(
+            finalBitmap.width,
+            finalBitmap.height, Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(output)
+        val paint = Paint()
+        val rect = Rect(
+            0, 0, finalBitmap.width,
+            finalBitmap.height
+        )
+
+        paint.isAntiAlias = true
+        paint.isFilterBitmap = true
+        paint.isDither = true
+        canvas.drawARGB(0, 0, 0, 0)
+        paint.color = Color.parseColor("#BAB399")
+        canvas.drawCircle(
+            finalBitmap.width / 2 + 0.7f,
+            finalBitmap.height / 2 + 0.7f,
+            finalBitmap.width / 2 + 0.1f, paint
+        )
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+        canvas.drawBitmap(finalBitmap, rect, rect, paint)
+
+        return output
+
     }
 
     private fun refreshValues(canvas: Canvas) {
