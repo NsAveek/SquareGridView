@@ -55,11 +55,6 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
     }
 
     init {
-//        LayoutInflater.from(context).inflate(R.layout.square_grid_custom_view, this);
-//        btnLoadImage = findViewById(R.id.btnLoadImage)
-//        imageGridCustomView = findViewById(R.id.imageViewGridCustom)
-
-
         val typedArray =
             context.obtainStyledAttributes(attributeSet, R.styleable.SquareGridCustomView)
         try {
@@ -68,7 +63,7 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
             paint.color = typedArray.getColor(
                 R.styleable.SquareGridCustomViewColor_color,
                 Color.RED
-            ) // Default color is RED
+            )
         } finally {
             typedArray.recycle()
         }
@@ -171,7 +166,7 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
         canvas.drawRect(shape, paint)
         canvas.save()
         canvas.restore()
-        canvas.drawBitmap(bitmap, shape, shape, null)
+        canvas.drawBitmap(Bitmap.createScaledBitmap(bitmap, shape.width(), shape.height(), true), shape, shape, null)
         canvas.restore()
         return shape
     }
