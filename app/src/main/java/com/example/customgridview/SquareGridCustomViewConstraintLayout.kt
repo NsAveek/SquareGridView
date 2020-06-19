@@ -28,7 +28,7 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
     defStyleRes: Int = 0
 ) : View(context, attributeSet, defStyleAttr, defStyleRes) {
 
-    private lateinit var btnLoadImage : Button
+    private lateinit var btnLoadImage: Button
     private lateinit var imageGridCustomView: ImageView
 
     private lateinit var imageBitmapCanvas: Bitmap
@@ -75,8 +75,10 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
         isClickable = true
         isVisible = true
 
-        imageBitmapCanvas = BitmapFactory.decodeResource(context.getResources(),
-            R.drawable.kl_city)
+        imageBitmapCanvas = BitmapFactory.decodeResource(
+            context.resources,
+            R.drawable.kl_city
+        )
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -87,14 +89,14 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
         var shape = Rect()
         for (row in 0 until totalRows) {
 
-            var localTopPadding = when (row){
+            var localTopPadding = when (row) {
                 0 -> totalTopPadding
                 else -> shape.bottom + space
             }
             for (column in 0 until totalColumns) {
                 when (column) {
                     0 -> {
-                        if (row == 0){
+                        if (row == 0) {
                             shape = drawSquareWithBitmap(
                                 canvas,
                                 totalLeftPadding,
@@ -102,7 +104,7 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
                                 totalLeftPadding + horizontalGridWidth,
                                 localTopPadding + verticalGridHeight, imageBitmapCanvas
                             )
-                        }else {
+                        } else {
                             shape = drawSquare(
                                 canvas,
                                 totalLeftPadding,
@@ -155,6 +157,7 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
         canvas.restore()
         return shape
     }
+
     private fun drawSquareWithBitmap(
         canvas: Canvas,
         left: Int,
@@ -168,7 +171,7 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
         canvas.drawRect(shape, paint)
         canvas.save()
         canvas.restore()
-        canvas.drawBitmap(bitmap,shape,shape,null)
+        canvas.drawBitmap(bitmap, shape, shape, null)
         canvas.restore()
         return shape
     }
@@ -226,6 +229,7 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
         canvasHeight = h
         super.onSizeChanged(w, h, oldw, oldh)
     }
+
     private fun dptoDisplayPixels(value: Int): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
