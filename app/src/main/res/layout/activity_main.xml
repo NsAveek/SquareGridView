@@ -27,9 +27,20 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appbarlayout"
+        android:gravity="center"
+        android:text="Please click on the image to apply filters"/>
+
     <com.example.customgridview.SquareGridCustomViewConstraintLayout
         android:id="@+id/squareGridView"
-        android:layout_width="wrap_content"
+        android:layout_width="400dp"
         android:layout_height="400dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
@@ -39,7 +50,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appbarlayout"
+        app:layout_constraintTop_toBottomOf="@+id/text_view"
         app:layout_constraintVertical_bias="0.0" />
 
     <jp.co.cyberagent.android.gpuimage.GPUImageView

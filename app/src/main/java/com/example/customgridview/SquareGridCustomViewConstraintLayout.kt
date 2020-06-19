@@ -1,18 +1,19 @@
 package com.example.customgridview
 
-import android.R.attr.maxHeight
-import android.R.attr.maxWidth
+import android.R.attr.path
 import android.content.Context
 import android.graphics.*
 import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
+import io.reactivex.subjects.PublishSubject
 
 
 /**
@@ -32,7 +33,7 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
     private lateinit var btnLoadImage: Button
     private lateinit var imageGridCustomView: ImageView
 
-    private lateinit var imageBitmapCanvas: Bitmap
+    var imageBitmapCanvas: Bitmap
 
     private var totalLeftPadding = 0
     private var totalRightPadding = 0
@@ -52,8 +53,10 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
     private var verticalGridHeight = 0
     private var shape = Rect()
 
+    private lateinit var publishSubject : PublishSubject<Bitmap>
+
     private var paint = Paint()?.also {
-        it.isAntiAlias = true // Smoothing Surface
+        it.isAntiAlias = true
     }
 
     init {
@@ -71,6 +74,8 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
         }
         isClickable = true
         isVisible = true
+        isFocusable = true
+
 
         imageBitmapCanvas = BitmapFactory.decodeResource(
             context.resources,
@@ -82,7 +87,6 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
         super.onDraw(canvas)
 
         refreshValues(canvas)
-
 
         for (row in 0 until totalRows) {
 
@@ -101,6 +105,7 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
                                 totalLeftPadding + horizontalGridWidth,
                                 localTopPadding + verticalGridHeight, imageBitmapCanvas
                             )
+                            Log.d("row $row column $column", shape.width().toString())
                         } else {
                             shape = drawSquare(
                                 canvas,
@@ -125,6 +130,7 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
                 }
             }
         }
+
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -174,104 +180,7 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
 //        canvas.drawBitmap(Bitmap.createScaledBitmap(bitmap, shape.width(), shape.height(), false), shape, shape, null)
         canvas.drawBitmap(bitmap, null, shape, null)
         canvas.restore()
-        bitmap.recycle()
         return shape
-    }
-
-
-    private fun resize(image: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
-        var image = image
-        return if (maxHeight > 0 && maxWidth > 0) {
-            val width = image.width
-            val height = image.height
-            val ratioBitmap = width.toFloat() / height.toFloat()
-            val ratioMax = maxWidth.toFloat() / maxHeight.toFloat()
-            var finalWidth = maxWidth
-            var finalHeight = maxHeight
-            if (ratioMax > 1) {
-                finalWidth = (maxHeight.toFloat() * ratioBitmap).toInt()
-            } else {
-                finalHeight = (maxWidth.toFloat() / ratioBitmap).toInt()
-            }
-            image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true)
-            image
-        } else {
-            image
-        }
-    }
-//    public fun transform(source : Bitmap) : Bitmap  {
-//        val scale : Float
-//        val newSize : Int
-//        val scaleBitmap : Bitmap
-//        if (isHeightScale) {
-//            scale = (float) mSize / source.getHeight();
-//            newSize = Math.round(source.getWidth() * scale);
-//            scaleBitmap = Bitmap.createScaledBitmap(source, newSize, mSize, true);
-//        } else {
-//            scale = (float) mSize / source.getWidth();
-//            newSize = Math.round(source.getHeight() * scale);
-//            scaleBitmap = Bitmap.createScaledBitmap(source, mSize, newSize, true);
-//        }
-//        if (scaleBitmap != source) {
-//            source.recycle();
-//        }
-//
-//        return scaledBitmap
-//    }
-//    private fun resize(image: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
-//        var image = image
-//        return if (maxHeight > 0 && maxWidth > 0) {
-//            val width = image.width
-//            val height = image.height
-//            val ratioBitmap = width.toFloat() / height.toFloat()
-//            val ratioMax = maxWidth.toFloat() / maxHeight.toFloat()
-//            var finalWidth = maxWidth
-//            var finalHeight = maxHeight
-//            if (ratioMax > ratioBitmap) {
-//                finalWidth = (maxHeight.toFloat() * ratioBitmap).toInt()
-//            } else {
-//                finalHeight = (maxWidth.toFloat() / ratioBitmap).toInt()
-//            }
-//            image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true)
-//            image
-//        } else {
-//            image
-//        }
-//    }
-
-    private fun getSquaredCroppedBitmap(bitmap: Bitmap, width: Int, height: Int): Bitmap {
-
-        var finalBitmap: Bitmap = if (bitmap.width != width || bitmap.height != height) {
-            Bitmap.createScaledBitmap(bitmap, width, height, false)
-        } else {
-            bitmap
-        }
-        val output = Bitmap.createBitmap(
-            finalBitmap.width,
-            finalBitmap.height, Bitmap.Config.ARGB_8888
-        )
-        val canvas = Canvas(output)
-        val paint = Paint()
-        val rect = Rect(
-            0, 0, finalBitmap.width,
-            finalBitmap.height
-        )
-
-        paint.isAntiAlias = true
-        paint.isFilterBitmap = true
-        paint.isDither = true
-        canvas.drawARGB(0, 0, 0, 0)
-        paint.color = Color.parseColor("#BAB399")
-        canvas.drawCircle(
-            finalBitmap.width / 2 + 0.7f,
-            finalBitmap.height / 2 + 0.7f,
-            finalBitmap.width / 2 + 0.1f, paint
-        )
-        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-        canvas.drawBitmap(finalBitmap, rect, rect, paint)
-
-        return output
-
     }
 
     private fun refreshValues(canvas: Canvas) {
@@ -299,5 +208,27 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
             value.toFloat(),
             context.resources.displayMetrics
         ).toInt()
+    }
+    fun setTouchListener(publishSubject: PublishSubject<Bitmap>){
+        this.publishSubject = publishSubject
+    }
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        val eventX = event.x
+        val eventY = event.y
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                publishSubject.onNext(imageBitmapCanvas)
+                return true
+            }
+            MotionEvent.ACTION_MOVE -> {
+            }
+            MotionEvent.ACTION_UP -> {
+            }
+            else -> return false
+        }
+
+        // Schedules a repaint.
+        invalidate()
+        return true
     }
 }
