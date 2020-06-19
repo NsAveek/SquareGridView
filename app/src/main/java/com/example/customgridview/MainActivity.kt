@@ -1,13 +1,10 @@
 package com.example.customgridview
 
-import android.content.ContentResolver
-import android.content.ContentValues
-import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
+import android.os.Environment
 import android.view.Menu
 import android.view.MenuItem
 import androidx.annotation.RequiresApi
@@ -20,6 +17,9 @@ import jp.co.cyberagent.android.gpuimage.GPUImageView
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageHueFilter
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
 import kotlin.concurrent.thread
 
 
@@ -64,14 +64,25 @@ class MainActivity : AppCompatActivity() {
 
     private fun getImageUri(inImage: Bitmap): Uri {
         val bytes = ByteArrayOutputStream()
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
-        val path = MediaStore.Images.Media.insertImage(
-            contentResolver,
-            inImage,
-            "Title",
-            null
-        )
-        return Uri.parse(path)
+
+        val extStorageDirectory = Environment.getExternalStorageDirectory().toString()
+        var outStream: OutputStream? = null
+        val file = File(extStorageDirectory, "er.PNG")
+        try {
+            outStream = FileOutputStream(file)
+            inImage.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
+//            bbicon.compress(Bitmap.CompressFormat.PNG, 100, outStream)
+            outStream.flush()
+            outStream.close()
+        } catch (e: Exception) {
+        }
+//        val path = MediaStore.Images.Media.insertImage(
+//            contentResolver,
+//            inImage,
+//            "Title",
+//            null
+//        )
+        return Uri.parse(file.path)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
