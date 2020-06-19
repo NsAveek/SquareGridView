@@ -2,8 +2,6 @@ package com.example.customgridview
 
 import android.content.Context
 import android.graphics.*
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
@@ -32,6 +30,7 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
     private lateinit var btnLoadImage : Button
     private lateinit var imageGridCustomView: ImageView
 
+    private lateinit var imageBitmapCanvas: Bitmap
 
     private var totalLeftPadding = 0
     private var totalRightPadding = 0
@@ -75,6 +74,8 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
         isClickable = true
         isVisible = true
 
+        imageBitmapCanvas = BitmapFactory.decodeResource(context.getResources(),
+            R.drawable.kl_city)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -82,15 +83,15 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
 
         refreshValues(canvas)
 
-        var drawable: Drawable? = drawable ?: return
-        if( width == 0 || height == 0) return
-
-        var b : Bitmap = (drawable as BitmapDrawable).bitmap
-        var bitmap = b.copy(Bitmap.Config.ARGB_8888,true)
-        val bitmapWidth = width
-        val bitmapHeight = height
-//        val bitmapFitToSquare = getSquaredCroppedBitmap(bitmap,bitmapWidth,bitmapHeight)
-        val bitmapFitToSquare = getSquaredCroppedBitmap(bitmap,horizontalGridWidth,verticalGridHeight)
+//        var drawable: Drawable? = drawable ?: return
+//        if( width == 0 || height == 0) return
+//
+//        var b : Bitmap = (drawable as BitmapDrawable).bitmap
+//        var bitmap = b.copy(Bitmap.Config.ARGB_8888,true)
+//        val bitmapWidth = width
+//        val bitmapHeight = height
+////        val bitmapFitToSquare = getSquaredCroppedBitmap(bitmap,bitmapWidth,bitmapHeight)
+//        val bitmapFitToSquare = getSquaredCroppedBitmap(bitmap,horizontalGridWidth,verticalGridHeight)
 
         var shape = Rect()
         for (row in 0 until totalRows) {
@@ -108,7 +109,7 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
                                 totalLeftPadding,
                                 localTopPadding,
                                 totalLeftPadding + horizontalGridWidth,
-                                localTopPadding + verticalGridHeight, bitmapFitToSquare
+                                localTopPadding + verticalGridHeight, imageBitmapCanvas
                             )
                         }else {
                             shape = drawSquare(
@@ -174,7 +175,10 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
     ): Rect {
         val shape = Rect(left, top, right, bottom)
         canvas.save()
-        canvas.drawBitmap(bitmap,0F, 0F, null)
+        canvas.drawRect(shape, paint)
+        canvas.save()
+        canvas.restore()
+        canvas.drawBitmap(bitmap,shape,shape,null)
         canvas.restore()
         return shape
     }
