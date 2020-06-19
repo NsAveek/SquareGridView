@@ -29,9 +29,9 @@ class MainActivity : AppCompatActivity() {
     private fun initGPUImageView(){
         val imageUri: Uri = (Uri.Builder())
             .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
-            .authority(resources.getResourcePackageName(R.drawable.kl_city))
-            .appendPath(resources.getResourceTypeName(R.drawable.kl_city))
-            .appendPath(resources.getResourceEntryName(R.drawable.kl_city))
+            .authority(resources.getResourcePackageName(R.drawable.nature))
+            .appendPath(resources.getResourceTypeName(R.drawable.nature))
+            .appendPath(resources.getResourceEntryName(R.drawable.nature))
             .build()
         gpuImageView = findViewById(R.id.gpuimageview)
         thread {
