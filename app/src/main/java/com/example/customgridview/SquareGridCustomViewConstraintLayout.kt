@@ -6,6 +6,7 @@ import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
@@ -25,7 +26,7 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
     attributeSet: AttributeSet,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
-) : AppCompatImageView(context, attributeSet, defStyleAttr) {
+) : View(context, attributeSet, defStyleAttr, defStyleRes) {
 
     private lateinit var btnLoadImage : Button
     private lateinit var imageGridCustomView: ImageView
@@ -82,16 +83,6 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
         super.onDraw(canvas)
 
         refreshValues(canvas)
-
-//        var drawable: Drawable? = drawable ?: return
-//        if( width == 0 || height == 0) return
-//
-//        var b : Bitmap = (drawable as BitmapDrawable).bitmap
-//        var bitmap = b.copy(Bitmap.Config.ARGB_8888,true)
-//        val bitmapWidth = width
-//        val bitmapHeight = height
-////        val bitmapFitToSquare = getSquaredCroppedBitmap(bitmap,bitmapWidth,bitmapHeight)
-//        val bitmapFitToSquare = getSquaredCroppedBitmap(bitmap,horizontalGridWidth,verticalGridHeight)
 
         var shape = Rect()
         for (row in 0 until totalRows) {
@@ -160,9 +151,8 @@ class SquareGridCustomViewConstraintLayout @JvmOverloads constructor(
     ): Rect {
         val shape = Rect(left, top, right, bottom)
         canvas.save()
-        canvas.drawRect(shape, paint)
+        canvas.drawRect(shape, paint.apply { color = Color.WHITE })
         canvas.restore()
-//        invalidate()
         return shape
     }
     private fun drawSquareWithBitmap(

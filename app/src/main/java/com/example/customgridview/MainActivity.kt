@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initCustomView(){
         customGridView = findViewById(R.id.squareGridView)
-        customGridView.setImageBitmap(BitmapFactory.decodeResource(resources,R.drawable.ic_launcher_background))
+//        customGridView.setImageBitmap(BitmapFactory.decodeResource(resources,R.drawable.ic_launcher_background))
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
