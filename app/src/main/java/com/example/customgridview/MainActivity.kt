@@ -1,11 +1,9 @@
 package com.example.customgridview
 
-
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.app.AlertDialog
 import android.content.ContentValues
-import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
@@ -20,13 +18,12 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.material.snackbar.Snackbar
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import jp.co.cyberagent.android.gpuimage.GPUImageView
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageDarkenBlendFilter
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageGrayscaleFilter
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageHueFilter
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
@@ -36,7 +33,7 @@ import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var customGridView : SquareGridCustomViewConstraintLayout
+    private lateinit var customGridView : SquareGridCustomView
     private lateinit var gpuImageView : GPUImageView
     private lateinit var publishSubject : PublishSubject<Bitmap>
     private lateinit var disposable: Disposable
@@ -60,10 +57,7 @@ class MainActivity : AppCompatActivity() {
         publishSubject = PublishSubject.create()
         disposable = publishSubject.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {(
-                    initGPUImageView(getImageUri(it))
-                    )
-            }
+            .subscribe {(initGPUImageView(getImageUri(it)))}
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -77,7 +71,7 @@ class MainActivity : AppCompatActivity() {
             gpuImageView.setImage(imageUri) // this loads image on the current thread, should be run in a thread
         }
         gpuImageView.filter = GPUImageHueFilter()
-//        gpuImageView.filter = GPUImageDarkenBlendFilter()
+        gpuImageView.filter = GPUImageGrayscaleFilter()
     }
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
@@ -174,6 +168,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
@@ -184,5 +179,25 @@ class MainActivity : AppCompatActivity() {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        disposable.dispose()
+    }
+
+    override fun onResume() {
+        super.onResume()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if(disposable != null && !disposable.isDisposed) {
+            disposable.dispose();
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
     }
 }

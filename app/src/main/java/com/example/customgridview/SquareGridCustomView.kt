@@ -1,17 +1,16 @@
 package com.example.customgridview
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
+import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
+import io.reactivex.subjects.PublishSubject
 
 
 /**
@@ -27,6 +26,8 @@ class SquareGridCustomView @JvmOverloads constructor(
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
 ) : View(context, attributeSet, defStyleAttr, defStyleRes) {
+
+    var imageBitmapCanvas: Bitmap
 
     private var totalLeftPadding = 0
     private var totalRightPadding = 0
@@ -44,9 +45,12 @@ class SquareGridCustomView @JvmOverloads constructor(
 
     private var horizontalGridWidth = 0
     private var verticalGridHeight = 0
+    private var shape = Rect()
+
+    private lateinit var publishSubject : PublishSubject<Bitmap>
 
     private var paint = Paint()?.also {
-        it.isAntiAlias = true // Smoothing Surface
+        it.isAntiAlias = true
     }
 
     init {
@@ -58,13 +62,19 @@ class SquareGridCustomView @JvmOverloads constructor(
             paint.color = typedArray.getColor(
                 R.styleable.SquareGridCustomViewColor_color,
                 Color.RED
-            ) // Default color is RED
+            )
         } finally {
             typedArray.recycle()
         }
         isClickable = true
         isVisible = true
+        isFocusable = true
 
+
+        imageBitmapCanvas = BitmapFactory.decodeResource(
+            context.resources,
+            R.drawable.nature
+        )
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -72,24 +82,34 @@ class SquareGridCustomView @JvmOverloads constructor(
 
         refreshValues(canvas)
 
-        var shape = Rect()
         for (row in 0 until totalRows) {
 
-            var localTopPadding = when (row){
+            var localTopPadding = when (row) {
                 0 -> totalTopPadding
                 else -> shape.bottom + space
             }
             for (column in 0 until totalColumns) {
                 when (column) {
                     0 -> {
-                        shape = drawSquare(
-                            canvas,
-                            totalLeftPadding,
-                            localTopPadding,
-                            totalLeftPadding + horizontalGridWidth,
-                            localTopPadding + verticalGridHeight
-                        )
-                        Log.d("row $row column $column", shape.width().toString())
+                        if (row == 0) {
+                            shape = drawSquareWithBitmap(
+                                canvas,
+                                totalLeftPadding,
+                                localTopPadding,
+                                totalLeftPadding + horizontalGridWidth,
+                                localTopPadding + verticalGridHeight, imageBitmapCanvas
+                            )
+                            Log.d("row $row column $column", shape.width().toString())
+                        } else {
+                            shape = drawSquare(
+                                canvas,
+                                totalLeftPadding,
+                                localTopPadding,
+                                totalLeftPadding + horizontalGridWidth,
+                                localTopPadding + verticalGridHeight
+                            )
+                            Log.d("row $row column $column", shape.width().toString())
+                        }
                     }
                     else -> {
                         shape = drawSquare(
@@ -104,6 +124,7 @@ class SquareGridCustomView @JvmOverloads constructor(
                 }
             }
         }
+
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -129,9 +150,28 @@ class SquareGridCustomView @JvmOverloads constructor(
     ): Rect {
         val shape = Rect(left, top, right, bottom)
         canvas.save()
-        canvas.drawRect(shape, paint)
+        canvas.drawRect(shape, paint.apply { color = Color.WHITE })
         canvas.restore()
-//        invalidate()
+        return shape
+    }
+
+    private fun drawSquareWithBitmap(
+        canvas: Canvas,
+        left: Int,
+        top: Int,
+        right: Int,
+        bottom: Int,
+        bitmap: Bitmap
+    ): Rect {
+        val shape = Rect(left, top, right, bottom)
+        canvas.save()
+        canvas.drawRect(shape, paint)
+        canvas.save()
+        canvas.restore()
+        Log.d("shape width", shape.width().toString())
+        Log.d("shape height", shape.height().toString())
+        canvas.drawBitmap(bitmap, null, shape, null)
+        canvas.restore()
         return shape
     }
 
@@ -153,11 +193,31 @@ class SquareGridCustomView @JvmOverloads constructor(
         canvasHeight = h
         super.onSizeChanged(w, h, oldw, oldh)
     }
+
     private fun dptoDisplayPixels(value: Int): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             value.toFloat(),
             context.resources.displayMetrics
         ).toInt()
+    }
+    fun setTouchListener(publishSubject: PublishSubject<Bitmap>){
+        this.publishSubject = publishSubject
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                publishSubject.onNext(imageBitmapCanvas)
+                return true
+            }
+            MotionEvent.ACTION_MOVE -> {
+            }
+            MotionEvent.ACTION_UP -> {
+            }
+            else -> return false
+        }
+        invalidate()
+        return true
     }
 }
