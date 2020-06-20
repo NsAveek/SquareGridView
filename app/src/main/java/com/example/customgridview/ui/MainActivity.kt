@@ -13,9 +13,11 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.customgridview.BaseActivity
@@ -40,6 +42,7 @@ class MainActivity : BaseActivity() {
     private lateinit var gpuImageView : GPUImageView
     private lateinit var publishSubject : PublishSubject<Bitmap>
     private lateinit var disposable: Disposable
+    private lateinit var switch : SwitchCompat
 
 
 
@@ -48,10 +51,28 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        initSwitch()
         initPublishSubject()
         initCustomView()
         if (!checkPermission()){
             requestPermission()
+        }
+    }
+
+    private fun initSwitch() {
+        switch = findViewById(R.id.myswitch)
+        switch.apply {
+            isClickable = false
+            isChecked = false
+            setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { _, isChecked ->
+                if (isChecked){
+                    switch.text = getString(R.string.hue)
+                    gpuImageView.filter = GPUImageHueFilter()
+                }else{
+                    switch.text = getString(R.string.gray_scale)
+                    gpuImageView.filter = GPUImageGrayscaleFilter()
+                }
+            })
         }
     }
 
@@ -60,7 +81,13 @@ class MainActivity : BaseActivity() {
         publishSubject = PublishSubject.create()
         disposable = publishSubject.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {(initGPUImageView(getImageUriFromBitmap(it)))}
+            .subscribe {
+                    initGPUImageView(getImageUriFromBitmap(it))
+                    switch.apply {
+                        isClickable = true
+                        isChecked = true
+                    }
+            }
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -73,8 +100,6 @@ class MainActivity : BaseActivity() {
         thread {
             gpuImageView.setImage(imageUri)
         }
-        gpuImageView.filter = GPUImageHueFilter()
-        gpuImageView.filter = GPUImageGrayscaleFilter()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

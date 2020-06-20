@@ -8,6 +8,8 @@
     <string name="dialogue_positive_text">Yes</string>
     <string name="dialogue_cancel_text">Cancel</string>
     <string name="dialogue_negative_text">No</string>
+    <string name="hue">Hue</string>
+    <string name="gray_scale">Gray Scale</string>
 
 
 
