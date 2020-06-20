@@ -28,7 +28,7 @@ class SquareGridCustomView @JvmOverloads constructor(
     defStyleRes: Int = 0
 ) : View(context, attributeSet, defStyleAttr, defStyleRes) {
 
-    var imageBitmapCanvas: Bitmap
+    private var imageBitmapCanvas: Bitmap
 
     private var totalLeftPadding = 0
     private var totalRightPadding = 0
@@ -49,6 +49,7 @@ class SquareGridCustomView @JvmOverloads constructor(
     private var shape = Rect()
 
     private lateinit var publishSubject : PublishSubject<Bitmap>
+    private lateinit var shader: Shader
 
     private var paint = Paint()?.also {
         it.isAntiAlias = true

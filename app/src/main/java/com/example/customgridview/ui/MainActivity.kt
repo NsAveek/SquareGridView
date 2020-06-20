@@ -3,23 +3,17 @@ package com.example.customgridview.ui
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.app.AlertDialog
-import android.content.ContentValues
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.example.customgridview.BaseActivity
 import com.example.customgridview.R
 import com.example.customgridview.customview.SquareGridCustomView
@@ -30,9 +24,6 @@ import io.reactivex.subjects.PublishSubject
 import jp.co.cyberagent.android.gpuimage.GPUImageView
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageGrayscaleFilter
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageHueFilter
-import kotlinx.android.synthetic.main.activity_main.*
-import java.io.File
-import java.io.IOException
 import kotlin.concurrent.thread
 
 
@@ -50,7 +41,6 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-//        setSupportActionBar(toolbar)
         initSwitch()
         initPublishSubject()
         initCustomView()
