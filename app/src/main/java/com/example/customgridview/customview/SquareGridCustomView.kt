@@ -1,4 +1,4 @@
-package com.example.customgridview
+package com.example.customgridview.customview
 
 import android.content.Context
 import android.graphics.*
@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
+import com.example.customgridview.R
 import io.reactivex.subjects.PublishSubject
 
 
@@ -55,7 +56,9 @@ class SquareGridCustomView @JvmOverloads constructor(
 
     init {
         val typedArray =
-            context.obtainStyledAttributes(attributeSet, R.styleable.SquareGridCustomView)
+            context.obtainStyledAttributes(attributeSet,
+                R.styleable.SquareGridCustomView
+            )
         try {
             totalColumns = typedArray.getInt(R.styleable.SquareGridCustomView_grids, 2)
             space = typedArray.getInt(R.styleable.SquareGridCustomView_col_space, 10)

@@ -1,4 +1,4 @@
-package com.example.customgridview
+package com.example.customgridview.ui
 
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -18,6 +18,9 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.customgridview.BaseActivity
+import com.example.customgridview.R
+import com.example.customgridview.customview.SquareGridCustomView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -31,13 +34,13 @@ import java.io.IOException
 import kotlin.concurrent.thread
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
 
     private lateinit var customGridView : SquareGridCustomView
     private lateinit var gpuImageView : GPUImageView
     private lateinit var publishSubject : PublishSubject<Bitmap>
     private lateinit var disposable: Disposable
-    private val PERMISSION_REQUEST_CODE = 200
+
 
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -57,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         publishSubject = PublishSubject.create()
         disposable = publishSubject.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {(initGPUImageView(getImageUri(it)))}
+            .subscribe {(initGPUImageView(getImageUriFromBitmap(it)))}
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -68,64 +71,10 @@ class MainActivity : AppCompatActivity() {
     private fun initGPUImageView(imageUri : Uri){
         gpuImageView = findViewById(R.id.gpuimageview)
         thread {
-            gpuImageView.setImage(imageUri) // this loads image on the current thread, should be run in a thread
+            gpuImageView.setImage(imageUri)
         }
         gpuImageView.filter = GPUImageHueFilter()
         gpuImageView.filter = GPUImageGrayscaleFilter()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
-    private fun getImageUri(image : Bitmap) : Uri{
-        val relativeLocation = Environment.DIRECTORY_PICTURES + File.pathSeparator + "customgrid"
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, System.currentTimeMillis().toString())
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                put(MediaStore.MediaColumns.RELATIVE_PATH, relativeLocation)
-                put(MediaStore.MediaColumns.IS_PENDING, 1)
-            }
-        }
-
-        val resolver = applicationContext.contentResolver
-        val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-        try {
-
-            uri?.let { uri ->
-                val stream = resolver.openOutputStream(uri)
-
-                stream?.let { stream ->
-                    if (!image.compress(Bitmap.CompressFormat.JPEG, 100, stream)) {
-                        throw IOException("Failed to save bitmap.")
-                    }
-                } ?: throw IOException("Failed to get output stream.")
-
-            } ?: throw IOException("Failed to create new MediaStore record")
-
-        } catch (e: IOException) {
-            if (uri != null) {
-                resolver.delete(uri, null, null)
-            }
-            throw IOException(e)
-        } finally {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
-        }
-        resolver.update(uri!!, contentValues, null, null)
-        return uri
-    }
-
-    private fun checkPermission(): Boolean {
-        val result = ContextCompat.checkSelfPermission(applicationContext, WRITE_EXTERNAL_STORAGE)
-        val result1 = ContextCompat.checkSelfPermission(applicationContext, READ_EXTERNAL_STORAGE)
-        return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun requestPermission() {
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE),
-            PERMISSION_REQUEST_CODE
-        )
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -136,23 +85,23 @@ class MainActivity : AppCompatActivity() {
                 val readAccepted =
                     grantResults[1] == PackageManager.PERMISSION_GRANTED
                 if (writeAccepted && readAccepted){
-                    Toast.makeText(this,"Permission Granted, Now you can read and write data",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,getString(R.string.permission_granted),Toast.LENGTH_SHORT).show()
 
                 }  else {
-                    Toast.makeText(this,"Permission Denied, You can not read and write data",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,getString(R.string.permission_denied),Toast.LENGTH_SHORT).show()
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if (shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)) {
 
                             val builder = AlertDialog.Builder(this@MainActivity)
-                            builder.setTitle("Permission Required")
-                            builder.setMessage("You need to allow access to both the permissions")
-                            builder.setPositiveButton("YES"){dialog, which ->
+                            builder.setTitle(getString(R.string.permission_dialogue_title))
+                            builder.setMessage(getString(R.string.permission_dialogue_message))
+                            builder.setPositiveButton(getString(R.string.dialogue_positive_text)){dialog, which ->
                                 requestPermissions(arrayOf( WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE),
                                     PERMISSION_REQUEST_CODE
                                 )
                             }
-                            builder.setNegativeButton("Cancel"){dialog,which ->
+                            builder.setNegativeButton(getString(R.string.dialogue_cancel_text)){dialog,which ->
                                 requestPermissions(arrayOf( WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE),
                                     PERMISSION_REQUEST_CODE
                                 )
