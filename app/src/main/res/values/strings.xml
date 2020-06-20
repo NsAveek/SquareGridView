@@ -5,6 +5,7 @@
     <string name="permission_granted">Permission Granted, Now you can read and write data</string>
     <string name="permission_dialogue_title">Permission Required</string>
     <string name="permission_dialogue_message">You need to allow access to both of the permissions</string>
+    <string name="title_message">Please click on the image to apply filters</string>
     <string name="dialogue_positive_text">Yes</string>
     <string name="dialogue_cancel_text">Cancel</string>
     <string name="dialogue_negative_text">No</string>
