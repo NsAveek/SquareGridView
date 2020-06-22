@@ -27,12 +27,12 @@ import kotlin.concurrent.thread
 
 class MainActivity : BaseActivity() {
 
-    private lateinit var customGridView : SquareGridCustomView
-    private lateinit var gpuImageView : GPUImageView
-    private lateinit var publishSubject : PublishSubject<Bitmap>
+    private lateinit var customGridView: SquareGridCustomView
+    private lateinit var gpuImageView: GPUImageView
+    private lateinit var publishSubject: PublishSubject<Bitmap>
     private lateinit var disposable: Disposable
-    private lateinit var switch : SwitchCompat
-
+    private lateinit var switch: SwitchCompat
+    private lateinit var bitmap: Bitmap
 
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -42,7 +42,7 @@ class MainActivity : BaseActivity() {
         initSwitch()
         initPublishSubject()
         initCustomView()
-        if (!checkPermission()){
+        if (!checkPermission()) {
             requestPermission()
         }
     }
@@ -53,10 +53,10 @@ class MainActivity : BaseActivity() {
             isClickable = false
             isChecked = false
             setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { _, isChecked ->
-                if (isChecked){
+                if (isChecked) {
                     switch.text = getString(R.string.hue)
                     gpuImageView.filter = GPUImageHueFilter()
-                }else{
+                } else {
                     switch.text = getString(R.string.gray_scale)
                     gpuImageView.filter = GPUImageGrayscaleFilter()
                 }
@@ -70,38 +70,46 @@ class MainActivity : BaseActivity() {
         disposable = publishSubject.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                    initGPUImageView(getImageUriFromBitmap(it))
-                    switch.apply {
-                        isClickable = true
-                        isChecked = true
-                    }
+                this.bitmap = it
+                initGPUImageView(getImageUriFromBitmap(it))
+                switch.apply {
+                    isClickable = true
+                    isChecked = true
+                }
             }
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun initCustomView(){
+    private fun initCustomView() {
         customGridView = findViewById(R.id.squareGridView)
         customGridView.setTouchListener(publishSubject)
     }
-    private fun initGPUImageView(imageUri : Uri){
+
+    private fun initGPUImageView(imageUri: Uri) {
         gpuImageView = findViewById(R.id.gpuimageview)
         thread {
             gpuImageView.setImage(imageUri)
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         when (requestCode) {
             PERMISSION_REQUEST_CODE -> if (grantResults.isNotEmpty()) {
                 val writeAccepted =
                     grantResults[0] == PackageManager.PERMISSION_GRANTED
                 val readAccepted =
                     grantResults[1] == PackageManager.PERMISSION_GRANTED
-                if (writeAccepted && readAccepted){
-                    Toast.makeText(this,getString(R.string.permission_granted),Toast.LENGTH_SHORT).show()
+                if (writeAccepted && readAccepted) {
+                    Toast.makeText(this, getString(R.string.permission_granted), Toast.LENGTH_SHORT)
+                        .show()
 
-                }  else {
-                    Toast.makeText(this,getString(R.string.permission_denied),Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, getString(R.string.permission_denied), Toast.LENGTH_SHORT)
+                        .show()
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if (shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)) {
@@ -109,13 +117,15 @@ class MainActivity : BaseActivity() {
                             val builder = AlertDialog.Builder(this@MainActivity)
                             builder.setTitle(getString(R.string.permission_dialogue_title))
                             builder.setMessage(getString(R.string.permission_dialogue_message))
-                            builder.setPositiveButton(getString(R.string.dialogue_positive_text)){dialog, which ->
-                                requestPermissions(arrayOf( WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE),
+                            builder.setPositiveButton(getString(R.string.dialogue_positive_text)) { dialog, which ->
+                                requestPermissions(
+                                    arrayOf(WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE),
                                     PERMISSION_REQUEST_CODE
                                 )
                             }
-                            builder.setNegativeButton(getString(R.string.dialogue_cancel_text)){dialog,which ->
-                                requestPermissions(arrayOf( WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE),
+                            builder.setNegativeButton(getString(R.string.dialogue_cancel_text)) { dialog, which ->
+                                requestPermissions(
+                                    arrayOf(WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE),
                                     PERMISSION_REQUEST_CODE
                                 )
                             }
@@ -125,7 +135,7 @@ class MainActivity : BaseActivity() {
                         }
                     }
                 }
-            }else{
+            } else {
                 requestPermission()
             }
         }
@@ -142,9 +152,10 @@ class MainActivity : BaseActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if(disposable != null && !disposable.isDisposed) {
+        if (disposable != null && !disposable.isDisposed) {
             disposable.dispose();
         }
+        bitmap.recycle()
     }
 
     override fun onStop() {
