@@ -13,7 +13,7 @@ import java.io.IOException
 
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 fun getImageUri(context : Context,image : Bitmap) : Uri {
-    val relativeLocation = Environment.DIRECTORY_PICTURES + File.pathSeparator + "customgrid"
+    val relativeLocation = Environment.DIRECTORY_PICTURES + "/customgrid"
     val contentValues = ContentValues().apply {
         put(MediaStore.MediaColumns.DISPLAY_NAME, System.currentTimeMillis().toString())
         put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
