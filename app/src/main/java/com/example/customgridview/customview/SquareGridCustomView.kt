@@ -20,13 +20,11 @@ import io.reactivex.subjects.PublishSubject
  * Total Grid Space = 400 - 50*2 - (2-1)*50 = 250
  * Each Grid Space = 250/2 = 125
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class SquareGridCustomView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet,
-    defStyleAttr: Int = 0,
-    defStyleRes: Int = 0
-) : View(context, attributeSet, defStyleAttr, defStyleRes) {
+    defStyleAttr: Int = 0 // Style from theme
+) : View(context, attributeSet, defStyleAttr) {
 
     private var imageBitmapCanvas: Bitmap
 
@@ -49,7 +47,6 @@ class SquareGridCustomView @JvmOverloads constructor(
     private var shape = Rect()
 
     private lateinit var publishSubject : PublishSubject<Bitmap>
-    private lateinit var shader: Shader
 
     private var paint = Paint()?.also {
         it.isAntiAlias = true

@@ -79,7 +79,7 @@ class MainActivity : BaseActivity() {
             }
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+
     private fun initCustomView() {
         customGridView = findViewById(R.id.squareGridView)
         customGridView.setTouchListener(publishSubject)
